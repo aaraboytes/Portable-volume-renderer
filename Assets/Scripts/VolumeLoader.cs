@@ -32,31 +32,18 @@ public class VolumeLoader : MonoBehaviour
             StartCoroutine(OpenImages(urls));
         }
     }
+
     private IEnumerator OpenImages(string[] urls)
     {
-        List<Texture2D> images = new List<Texture2D>();
-        foreach (var url in urls)
+        VolumeImagesLocalOpener imagesOpener = new VolumeImagesLocalOpener(urls);
+        yield return imagesOpener.Callback;
+        Texture2D[] frames = imagesOpener.Frames;
+        _animator.Frames = new Texture3D[frames.Length];
+        for (int i = 0; i < frames.Length; i++)
         {
-            var image = new WWW(url);
-            yield return image;
-            images.Add(image.texture);
-        }
-        _animator.Frames = new Texture3D[images.Count];
-        for (int i = 0; i < images.Count; i++)
-        {
-            Texture3D volume = ConstructVolume(images[i]);
+            Texture3D volume = VolumeConstructor.ConstructVolume(frames[i]);
             _animator.Frames[i] = volume;
         }
         _animator.Play();
-    }
-    private Texture3D ConstructVolume(Texture2D image)
-    {
-        Texture3D volume;
-        Color32[] colors = image.GetPixels32();
-        volume = new Texture3D(256, 256, 256, TextureFormat.RGB24, false);
-        volume.name = image.name;
-        volume.SetPixels32(colors);
-        volume.Apply();
-        return volume;
     }
 }
