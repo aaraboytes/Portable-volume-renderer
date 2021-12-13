@@ -36,7 +36,7 @@ public class VolumeLoader : MonoBehaviour
     private IEnumerator OpenImages(string[] urls)
     {
         VolumeImagesLocalOpener imagesOpener = new VolumeImagesLocalOpener(urls);
-        yield return imagesOpener.Callback;
+        yield return imagesOpener.OpenFrames();
         Texture2D[] frames = imagesOpener.Frames;
         _animator.Frames = new Texture3D[frames.Length];
         for (int i = 0; i < frames.Length; i++)
